@@ -5,7 +5,7 @@ import qsoptex
 import logging
 import collections
 
-from s2e import *
+from dual import *
 from e2m import *
 from vertices import *
 from symmetry import *
@@ -24,7 +24,7 @@ def sigdim(state: np.ndarray=None, effect=None, lb=2, ub=) -> int:
 
     # s2e
     print("s2e")
-    effect = s2e(s2e_input(state))
+    effect = dual(dual_input(state))
     print(effect.shape)
     print(effect)
 

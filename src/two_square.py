@@ -18,7 +18,7 @@ state = state.T
 # state = np.concatenate([state, np.ones((state.shape[0], 1), dtype=np.int16)], axis=1)
 # print(state.shape)
 # print(sigdim(state))
-effect = s2e(s2e_input(state))
+effect = dual(dual_input(state))
 effect = effect[:, 1:]
 print(effect.shape)
 print(effect)

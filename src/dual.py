@@ -2,7 +2,7 @@ import cdd
 import numpy as np
 
 # state to effect
-def s2e(S:np.ndarray) -> np.ndarray:
+def dual(S:np.ndarray) -> np.ndarray:
     state_mat = cdd.Matrix(S.tolist(), number_type="fraction")
     state_mat.rep_type = cdd.RepType.INEQUALITY
     poly = cdd.Polyhedron(state_mat)
@@ -12,7 +12,7 @@ def s2e(S:np.ndarray) -> np.ndarray:
 
 
 # polytope to s2e input
-def s2e_input(state: np.ndarray) -> np.ndarray:
+def dual_input(state: np.ndarray) -> np.ndarray:
     m = state.shape[0]
     s = np.concatenate([np.zeros((m, 1)), state], axis=1)
     # s = np.concatenate([s, np.ones((m, 1))], axis=1)
@@ -27,4 +27,4 @@ if __name__ == "__main__" :
         [0, 0, 1, 1],
         [0, 0, -1, 1]
     ]
-    print(s2e(s2e_input(np.array(state, dtype=np.int16))))
+    print(dual(dual_input(np.array(state, dtype=np.int16))))
