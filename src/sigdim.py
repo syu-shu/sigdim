@@ -70,13 +70,7 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         # TODO:unique to convexhall
         n = P.shape[1]
         print(P.shape)
-        # print(f"n={n}")
-        # for d in range(lb, n + 1):
-        #     A = vertices(P, d)
-        #     if check(P, A):
-        #         print(f"ext[{i}]:sigdim={d}")
-        #         sigdim = max(sigdim, d)
-        #         break
+        print(ext)
         dd = 0
         for d in range(max(lb, sigdim), min(n, ub)):
             A = vertices(P, d)
