@@ -11,26 +11,30 @@ from vertices import *
 from symmetry import *
 from sym_ext import *
 
-def sigdim(state: np.ndarray=None, effect=None, lb=2, ub=) -> int:
+def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -> int:
     if state is None and effect is None:
         return -1
 
     # logging.basicConfig(level=logging.DEBUG)
-    ub = state.shape[0]
-    if cs(state[:, :-1]):
-        ub -= 1
-    elif lb == 2:
-        lb += 1
 
-    # s2e
-    print("s2e")
-    effect = dual(dual_input(state))
-    print(effect.shape)
-    print(effect)
+    # dual
+    if effect is None:
+        effect = dual(dual_input(state))
+        effect = effect[:, 1:]
+    elif state is None:
+        state = dual(dual_input(effect))
+        print(state)
+        state = state[:, 1:]
+
+    if ub == 0:
+        ub = state.shape[0]
+        if cs(state[:, :-1]):
+            ub -= 1
+    if (not cs(state[:, :-1])) and lb == 2:
+        lb += 1
 
     # e2m
     print("e2m")
-    effect = effect[:, 1:]
     dim = effect.shape[1]
     effect = effect_lcm(effect)
     ext_meass = e2m(e2m_input(effect), dimension=dim)
@@ -62,8 +66,7 @@ def sigdim(state: np.ndarray=None, effect=None, lb=2, ub=) -> int:
         poly = ext_lcm(ext, poly)
         P = state @ poly.T
         P = np.unique(P, axis=0)
-        # todo
-        # unique to convexhall
+        # TODO:unique to convexhall
         n = P.shape[1]
         print(P.shape)
         # print(f"n={n}")
@@ -145,41 +148,32 @@ def ext_lcm(ext: np.ndarray, poly:np.ndarray) -> np.ndarray:
     return poly
 
 if __name__ == "__main__":
-    # state = [
-    #     [1, 0, 0, 1],
-    #     [-1, 0, 0, 1],
-    #     [0, 1, 0, 1],
-    #     [0, -1, 0, 1],
-    #     [0, 0, 1, 1],
-    #     [0, 0, -1, 1]
-    # ]
     state = [
-        [2,0,-2,0,0,0,-0,0,-2,-0,2,-0,0,0,-0,0],
-        [0,2,0,-2,0,0,0,-0,-0,-2,-0,2,0,0,0,-0],
-        [2,2,2,2,0,0,0,0,-2,-2,-2,-2,0,0,0,0],
-        [0,0,-0,0,2,0,-2,0,0,0,-0,0,-2,-0,2,-0],
-        [0,0,0,-0,0,2,0,-2,0,0,0,-0,-0,-2,-0,2],
-        [0,0,0,0,2,2,2,2,0,0,0,0,-2,-2,-2,-2],
-        [2,0,-2,0,2,0,-2,0,2,0,-2,0,2,0,-2,0],
-        [0,2,0,-2,0,2,0,-2,0,2,0,-2,0,2,0,-2],
-        [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+        [1, 0, 0, 1],
+        [-1, 0, 0, 1],
+        [0, 1, 0, 1],
+        [0, -1, 0, 1],
+        [0, 0, 1, 1],
+        [0, 0, -1, 1]
     ]
+    # state = [
+    #     [2,0,-2,0,0,0,-0,0,-2,-0,2,-0,0,0,-0,0],
+    #     [0,2,0,-2,0,0,0,-0,-0,-2,-0,2,0,0,0,-0],
+    #     [2,2,2,2,0,0,0,0,-2,-2,-2,-2,0,0,0,0],
+    #     [0,0,-0,0,2,0,-2,0,0,0,-0,0,-2,-0,2,-0],
+    #     [0,0,0,-0,0,2,0,-2,0,0,0,-0,-0,-2,-0,2],
+    #     [0,0,0,0,2,2,2,2,0,0,0,0,-2,-2,-2,-2],
+    #     [2,0,-2,0,2,0,-2,0,2,0,-2,0,2,0,-2,0],
+    #     [0,2,0,-2,0,2,0,-2,0,2,0,-2,0,2,0,-2],
+    #     [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+    # ]
     # print([len(i) for i in state])
     state = np.array(state, dtype=np.int16)
-    state = state.T
+    # e = dual(dual_input(state))
+    # print(e)
+    # print(dual(dual_input(e[:, 1:])))
+    # state = state.T
     # print(cs(state[:, :-1]))
-    print(sigdim(state, lb=4))
+    print(sigdim(state=None, effect=dual(dual_input(state))[:, 1:]))
     # print(state.shape)
     # state = np.concatenate([state, np.ones((state.shape[0], 1), dtype=np.int16)], axis=1)
-    # print(state.shape)
-    # print(sigdim(state))
-    # effect = s2e(s2e_input(state))
-    # effect = effect[:, 1:]
-    # print(effect.shape)
-    # print(effect)
-    # dim = effect.shape[1]
-    # ext_meass = e2m(e2m_input(effect), dimension=dim)
-    # print(ext_meass.shape)
-    # print(ext_meass[:11, :] * 240)
-    # np.savetxt("ext.dat", ext_meass * 240, fmt="%d")
-    # print(sigdim(state, lb=4))

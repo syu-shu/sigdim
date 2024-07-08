@@ -10,8 +10,8 @@ def dual(S:np.ndarray) -> np.ndarray:
     E = np.array([list(x) for x in effect_mat], dtype=np.int16)
     return E
 
-
-# polytope to s2e input
+# polytope to dual input
+# concatenate zeros(n, 1) left of state
 def dual_input(state: np.ndarray) -> np.ndarray:
     m = state.shape[0]
     s = np.concatenate([np.zeros((m, 1)), state], axis=1)
