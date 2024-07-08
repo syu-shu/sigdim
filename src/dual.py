@@ -1,7 +1,7 @@
 import cdd
 import numpy as np
 
-# state to effect
+# get input polyhedron's dual
 def dual(S:np.ndarray) -> np.ndarray:
     state_mat = cdd.Matrix(S.tolist(), number_type="fraction")
     state_mat.rep_type = cdd.RepType.INEQUALITY
