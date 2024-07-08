@@ -1,5 +1,6 @@
 import numpy as np
 import collections
+import csv
 
 from sigdim import sigdim
 
@@ -83,7 +84,16 @@ def hyper_octahedron(dim:int) -> np.ndarray:
 
 if __name__ == "__main__":
     dic = solids()
-    with open("")
-    for name, state in dic.items():
-        ans = sigdim(state=cat_ones(state))
-        print(ans["sigdim"])
+    with open("results/solids.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["state", "#vertices", "aff.dim", "cs", "#symmetries", "sigdim"])
+        for name, state in dic.items():
+            ans = sigdim(state=cat_ones(state))
+            writer.writerow([
+                name,
+                state.shape[0],
+                state.shape[1],
+                ans["cs"],
+                ans["sym"],
+                ans["sigdim"]
+            ])
