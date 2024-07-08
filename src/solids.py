@@ -1,6 +1,8 @@
 import numpy as np
 import collections
 
+from sigdim import sigdim
+
 def solids() -> dict[str, np.ndarray]:
     dic:dict[str, np.ndarray] = {
         "truncated_tetrahedron":
@@ -64,36 +66,6 @@ def solids() -> dict[str, np.ndarray]:
     }
     return dic
 
-# def solids(name:str, dim:int=3, ones:bool=True) -> np.ndarray:
-#     A:np.ndarray = None
-#     if name == "octahedron":
-#         A = hyper_octahedron(dim)
-#     elif name == "cube":
-#         A = hyper_cube(dim)
-#     elif name == "truncated_tetrahedron":
-#         A = np.array(
-#             [
-#                 [ 3,  1,  1],
-#                 [ 1,  3,  1],
-#                 [ 1,  1,  3],
-#                 [-3, -1,  1],
-#                 [-1, -3,  1],
-#                 [-1, -1,  3],
-#                 [-3,  1, -1],
-#                 [-1,  3, -1],
-#                 [-1, -1,  3],
-#                 [ 3, -1, -1],
-#                 [ 1, -3, -1],
-#                 [ 1, -1, -3],
-#             ], dtype=np.int32
-#         )
-#     elif
-#     else :
-#         return None
-#     if ones:
-#         A = cat_ones(A)
-#     return A
-
 def cat_ones(A:np.ndarray) -> np.ndarray:
     n = A.shape[0]
     return np.concatenate([A, np.ones((n, 1), dtype=np.int32)], axis=1)
@@ -108,3 +80,10 @@ def hyper_cube(dim:int) -> np.ndarray:
 def hyper_octahedron(dim:int) -> np.ndarray:
     A = np.concatenate([np.eye(dim, dtype=np.int16), -np.eye(dim, dtype=np.int16)])
     return A
+
+if __name__ == "__main__":
+    dic = solids()
+    with open("")
+    for name, state in dic.items():
+        ans = sigdim(state=cat_ones(state))
+        print(ans["sigdim"])

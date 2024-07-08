@@ -6,6 +6,9 @@ hogehoge.py
 hogefuga.py
 fugafuga.py
 
+# results
+results/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

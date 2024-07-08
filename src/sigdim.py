@@ -11,7 +11,7 @@ from vertices import *
 from symmetry import *
 from sym_ext import *
 
-def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -> int:
+def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -> dict[str, object]:
     if state is None and effect is None:
         return -1
 
@@ -26,11 +26,12 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         print(state)
         state = state[:, 1:]
 
+    is_cs = cs(state[:, :-1])
     if ub == 0:
         ub = state.shape[0]
-        if cs(state[:, :-1]):
+        if is_cs:
             ub -= 1
-    if (not cs(state[:, :-1])) and lb == 2:
+    if (not is_cs) and lb == 2:
         lb += 1
 
     # e2m
@@ -82,16 +83,17 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
             print(f"{d}, {A.shape}")
             if check(P, A):
                 dd = d
-                if c == 4:
-                    np.savetxt("P.dat", P, fmt="%d")
-                    np.savetxt("A.dat", A, fmt="%d")
                 break
         else:
             dd = n
         sigdim = max(sigdim, dd)
         print(f"ext[{c}]:sigdim={dd}")
 
-    return sigdim
+    return {
+        "sigdim":sigdim,
+        "cs":is_cs,
+        "sym":ext_meass.shape[0],
+    }
 
 def cs(X: np.ndarray) -> bool:
     for i in range(X.shape[0]):
