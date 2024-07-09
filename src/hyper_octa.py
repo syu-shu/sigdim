@@ -4,7 +4,7 @@ from solids import *
 import numpy as np
 lb = 3
 ub = 8
-with open("results/hyper_octahedron.csv", "w") as f:
+with open("results/hyper_octahedron_3_7.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerow(["state", "#vertices", "aff.dim", "cs", "#symmetries", "sigdim"])
     for d in range(lb, ub):

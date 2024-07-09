@@ -40,6 +40,7 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
     effect = effect_lcm(effect)
     ext_meass = e2m(e2m_input(effect), dimension=dim)
     print(ext_meass.shape)
+    ext0 = ext_meass.shape[0]
     print(ext_meass)
 
     # symmetry
@@ -86,7 +87,9 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
     return {
         "sigdim":sigdim,
         "cs":is_cs,
-        "sym":ext_meass.shape[0],
+        "sym":sym.shape[0],
+        "ext0":ext0,
+        "ext":ext_meass.shape[0]
     }
 
 def cs(X: np.ndarray) -> bool:

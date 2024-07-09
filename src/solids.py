@@ -16,7 +16,7 @@ def solids() -> dict[str, np.ndarray]:
             [-1, -1,  3],
             [-3,  1, -1],
             [-1,  3, -1],
-            [-1, -1,  3],
+            [-1,  1,  3],
             [ 3, -1, -1],
             [ 1, -3, -1],
             [ 1, -1, -3],
@@ -47,7 +47,7 @@ def solids() -> dict[str, np.ndarray]:
             [ 0, -1, -1],
             [ 0, -1, -1],
         ], dtype=np.int32),
-        "rhonbic_dodecahedron":
+        "rhombic_dodecahedron":
         np.array([
             [ 1,  1,  1],
             [-1,  1,  1],
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     dic = solids()
     with open("results/solids.csv", "w") as f:
         writer = csv.writer(f)
-        writer.writerow(["state", "#vertices", "aff.dim", "cs", "#symmetries", "sigdim"])
+        writer.writerow(["state", "#vertices", "aff.dim", "cs", "#symmetries", "#ext0", "#ext", "sigdim"])
         for name, state in dic.items():
             ans = sigdim(state=cat_ones(state))
             writer.writerow([
@@ -95,5 +95,7 @@ if __name__ == "__main__":
                 state.shape[1],
                 ans["cs"],
                 ans["sym"],
+                ans["ext0"],
+                ans["ext"],
                 ans["sigdim"]
             ])
