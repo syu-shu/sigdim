@@ -16,7 +16,7 @@ def solids() -> dict[str, np.ndarray]:
             [-1, -1,  3],
             [-3,  1, -1],
             [-1,  3, -1],
-            [-1,  1,  3],
+            [-1,  1, -3],
             [ 3, -1, -1],
             [ 1, -3, -1],
             [ 1, -1, -3],
@@ -36,15 +36,15 @@ def solids() -> dict[str, np.ndarray]:
         np.array([
             [ 1,  1,  0],
             [ 1, -1,  0],
-            [-1, -1,  0],
+            [-1,  1,  0],
             [-1, -1,  0],
             [ 1,  0,  1],
             [ 1,  0, -1],
-            [-1,  0, -1],
+            [-1,  0,  1],
             [-1,  0, -1],
             [ 0,  1,  1],
             [ 0,  1, -1],
-            [ 0, -1, -1],
+            [ 0, -1,  1],
             [ 0, -1, -1],
         ], dtype=np.int32),
         "rhombic_dodecahedron":
@@ -63,6 +63,51 @@ def solids() -> dict[str, np.ndarray]:
             [-2,  0,  0],
             [ 0, -2,  0],
             [ 0,  0, -2],
+        ], dtype=np.int32),
+        "truncated_octahedron":
+        np.array([
+            [ 0,  1,  2],
+            [ 0,  1, -2],
+            [ 0, -1,  2],
+            [ 0, -1, -2],
+            [ 1,  0,  2],
+            [ 1,  0, -2],
+            [-1,  0,  2],
+            [-1,  0, -2],
+            [ 1,  2,  0],
+            [ 1, -2,  0],
+            [-1,  2,  0],
+            [-1, -2,  0],
+            
+            [ 0,  2,  1],
+            [ 0,  2, -1],
+            [ 0, -2,  1],
+            [ 0, -2, -1],
+            [ 2,  0,  1],
+            [ 2,  0, -1],
+            [-2,  0,  1],
+            [-2,  0, -1],
+            [ 2,  1,  0],
+            [ 2, -1,  0],
+            [-2,  1,  0],
+            [-2, -1,  0],
+        ], dtype=np.int32),
+        "tetrakis_hexahedron":
+        np.array([
+            [ 3,  0,  0],
+            [ 0,  3,  0],
+            [ 0,  0,  3],
+            [-3,  0,  0],
+            [ 0, -3,  0],
+            [ 0,  0, -3],
+            [ 2,  2,  2],
+            [-2,  2,  2],
+            [ 2, -2,  2],
+            [-2, -2,  2],
+            [ 2,  2, -2],
+            [-2,  2, -2],
+            [ 2, -2, -2],
+            [-2, -2, -2]
         ], dtype=np.int32)
     }
     return dic
@@ -84,11 +129,13 @@ def hyper_octahedron(dim:int) -> np.ndarray:
 
 if __name__ == "__main__":
     dic = solids()
-    with open("results/solids.csv", "w") as f:
+    with open("results/solids_dual.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerow(["state", "#vertices", "aff.dim", "cs", "#symmetries", "#ext0", "#ext", "sigdim"])
         for name, state in dic.items():
+            print(name)
             ans = sigdim(state=cat_ones(state))
+            print(ans)
             writer.writerow([
                 name,
                 state.shape[0],
@@ -99,3 +146,16 @@ if __name__ == "__main__":
                 ans["ext"],
                 ans["sigdim"]
             ])
+            ad = sigdim(effect=cat_ones(state))
+            print(ad)
+            writer.writerow([
+                name + "_dual",
+                state.shape[0],
+                state.shape[1],
+                ad["cs"],
+                ad["sym"],
+                ad["ext0"],
+                ad["ext"],
+                ad["sigdim"]
+            ])
+            # break

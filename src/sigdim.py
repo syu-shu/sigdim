@@ -21,10 +21,12 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
     if effect is None:
         effect = dual(dual_input(state))
         effect = effect[:, 1:]
+        effect = effect_lcm(effect)
     elif state is None:
         state = dual(dual_input(effect))
-        print(state)
         state = state[:, 1:]
+        state = effect_lcm(state)
+        # print(state)
 
     is_cs = cs(state[:, :-1])
     if ub == 0:
@@ -35,32 +37,32 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         lb += 1
 
     # e2m
-    print("e2m")
+    # print("e2m")
     dim = effect.shape[1]
-    effect = effect_lcm(effect)
+    # effect = effect_lcm(effect)
     ext_meass = e2m(e2m_input(effect), dimension=dim)
-    print(ext_meass.shape)
+    # print(ext_meass.shape)
     ext0 = ext_meass.shape[0]
-    print(ext_meass)
+    # print(ext_meass)
 
     # symmetry
-    print("symmetry")
+    # print("symmetry")
     sym = symmetry(effect[:, :-1])
     # print(sym.shape)
     # print(ext_meass.shape)
     ext_meass = sym_ext(ext_meass, sym)
-    print(ext_meass.shape)
+    # print(ext_meass.shape)
     # print(ext_meass.shape)
     # print(ext_meass * 240)
     # np.savetxt("ext.dat", ext_meass * 240, fmt="%3d")
 
-    print("sigdim")
+    # print("sigdim")
     sigdim = 0
     c = 0
     for ext in ext_meass:
         c += 1
-        print("---")
-        print(c)
+        # print("---")
+        # print(c)
         flags = [x != 0 for x in ext]
         if sum(flags) <= lb:
             continue
@@ -70,19 +72,19 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         P = np.unique(P, axis=0)
         # TODO:unique to convexhall
         n = P.shape[1]
-        print(P.shape)
-        print(ext)
+        # print(P.shape)
+        # print(ext)
         dd = 0
         for d in range(max(lb, sigdim), min(n, ub)):
             A = vertices(P, d)
-            print(f"{d}, {A.shape}")
+            # print(f"{d}, {A.shape}")
             if check(P, A):
                 dd = d
                 break
         else:
             dd = n
         sigdim = max(sigdim, dd)
-        print(f"ext[{c}]:sigdim={dd}")
+        # print(f"ext[{c}]:sigdim={dd}")
 
     return {
         "sigdim":sigdim,
