@@ -15,7 +15,6 @@ def dual(S:np.ndarray) -> np.ndarray:
 def dual_input(state: np.ndarray) -> np.ndarray:
     m = state.shape[0]
     s = np.concatenate([np.zeros((m, 1)), state], axis=1)
-    # s = np.concatenate([s, np.ones((m, 1))], axis=1)
     return s
 
 if __name__ == "__main__" :

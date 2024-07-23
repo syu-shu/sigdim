@@ -13,7 +13,7 @@ from sym_ext import *
 
 def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -> dict[str, object]:
     if state is None and effect is None:
-        return -1
+        return None
 
     # logging.basicConfig(level=logging.DEBUG)
 
@@ -26,7 +26,6 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         state = dual(dual_input(effect))
         state = state[:, 1:]
         state = effect_lcm(state)
-        # print(state)
 
     is_cs = cs(state[:, :-1])
     if ub == 0:
@@ -37,32 +36,19 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         lb += 1
 
     # e2m
-    # print("e2m")
     dim = effect.shape[1]
-    # effect = effect_lcm(effect)
     ext_meass = e2m(e2m_input(effect), dimension=dim)
-    # print(ext_meass.shape)
     ext0 = ext_meass.shape[0]
-    # print(ext_meass)
 
     # symmetry
-    # print("symmetry")
     sym = symmetry(effect[:, :-1])
-    # print(sym.shape)
-    # print(ext_meass.shape)
     ext_meass = sym_ext(ext_meass, sym)
-    # print(ext_meass.shape)
-    # print(ext_meass.shape)
-    # print(ext_meass * 240)
-    # np.savetxt("ext.dat", ext_meass * 240, fmt="%3d")
 
-    # print("sigdim")
+    # sigdim
     sigdim = 0
     c = 0
     for ext in ext_meass:
         c += 1
-        # print("---")
-        # print(c)
         flags = [x != 0 for x in ext]
         if sum(flags) <= lb:
             continue
@@ -72,19 +58,15 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         P = np.unique(P, axis=0)
         # TODO:unique to convexhall
         n = P.shape[1]
-        # print(P.shape)
-        # print(ext)
         dd = 0
         for d in range(max(lb, sigdim), min(n, ub)):
             A = vertices(P, d)
-            # print(f"{d}, {A.shape}")
             if check(P, A):
                 dd = d
                 break
         else:
-            dd = n
+            dd = min(n, ub)
         sigdim = max(sigdim, dd)
-        # print(f"ext[{c}]:sigdim={dd}")
 
     return {
         "sigdim":sigdim,
@@ -103,6 +85,8 @@ def cs(X: np.ndarray) -> bool:
             return False
     return True
 
+
+
 def check(P:np.ndarray, A:np.ndarray) -> bool:
     problem = qsoptex.ExactProblem()
     n = P.shape[1]
@@ -118,17 +102,10 @@ def check(P:np.ndarray, A:np.ndarray) -> bool:
                     s = "x" + str(col)
                     constraints[s] = 1
             problem.add_linear_constraint(qsoptex.ConstraintSense.EQUAL, constraints, rhs=int(P[row_major, row_minor]))
-            # problem.add_linear_constraint(qsoptex.ConstraintSense.EQUAL, constraints, rhs=1 if P[row_major, row_minor] > 0 else 0)
     problem.set_objective_sense(qsoptex.ObjectiveSense.MINIMIZE)
     problem.set_param(qsoptex.Parameter.SIMPLEX_DISPLAY, 1)
-    # status = problem.solve()
-    # return status == qsoptex.SolutionStatus.OPTIMAL
-    return solve(problem) == qsoptex.SolutionStatus.OPTIMAL
-
-def solve(problem):
-            # problem.add_linear_constraint(qsoptex.ConstraintSense.EQUAL, constraints, rhs=1 if P[row_major, row_minor] > 0 else 0)
     status = problem.solve()
-    return status
+    return status == qsoptex.SolutionStatus.OPTIMAL
 
 
 
@@ -145,7 +122,6 @@ def ext_lcm(ext: np.ndarray, poly:np.ndarray) -> np.ndarray:
         else :
             poly[i] *= fac
         i += 1
-            # problem.add_linear_constraint(qsoptex.ConstraintSense.EQUAL, constraints, rhs=1 if P[row_major, row_minor] > 0 else 0)
     return poly
 
 if __name__ == "__main__":
@@ -157,24 +133,5 @@ if __name__ == "__main__":
         [0, 0, 1, 1],
         [0, 0, -1, 1]
     ]
-    # state = [
-    #     [2,0,-2,0,0,0,-0,0,-2,-0,2,-0,0,0,-0,0],
-    #     [0,2,0,-2,0,0,0,-0,-0,-2,-0,2,0,0,0,-0],
-    #     [2,2,2,2,0,0,0,0,-2,-2,-2,-2,0,0,0,0],
-    #     [0,0,-0,0,2,0,-2,0,0,0,-0,0,-2,-0,2,-0],
-    #     [0,0,0,-0,0,2,0,-2,0,0,0,-0,-0,-2,-0,2],
-    #     [0,0,0,0,2,2,2,2,0,0,0,0,-2,-2,-2,-2],
-    #     [2,0,-2,0,2,0,-2,0,2,0,-2,0,2,0,-2,0],
-    #     [0,2,0,-2,0,2,0,-2,0,2,0,-2,0,2,0,-2],
-    #     [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
-    # ]
-    # print([len(i) for i in state])
     state = np.array(state, dtype=np.int16)
-    # e = dual(dual_input(state))
-    # print(e)
-    # print(dual(dual_input(e[:, 1:])))
-    # state = state.T
-    # print(cs(state[:, :-1]))
-    print(sigdim(state=None, effect=dual(dual_input(state))[:, 1:]))
-    # print(state.shape)
-    # state = np.concatenate([state, np.ones((state.shape[0], 1), dtype=np.int16)], axis=1)
+    print(sigdim(state=state, effect=None))
