@@ -16,16 +16,17 @@
 # License along with this program. If not, see
 # <https://www.gnu.org/licenses/>.
 
-from sigdim import sigdim
+from sigdim_with_c import sigdim
 from solids import *
 
 import numpy as np
 lb = 3
-ub = 6
+ub = 7
 with open("results/hyper_octahedron_" + str(lb) + "_" + str(ub - 1) + ".csv", "w") as f:
     writer = csv.writer(f)
     writer.writerow(["state", "#vertices", "aff.dim", "cs", "#symmetries", "#ext0", "#ext", "sigdim"])
     for d in range(lb, ub):
+        print(d)
         state = hyper_octahedron(d)
         ans = sigdim(state=cat_ones(state))
         writer.writerow([

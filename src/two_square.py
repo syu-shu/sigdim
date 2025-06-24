@@ -16,7 +16,7 @@
 # License along with this program. If not, see
 # <https://www.gnu.org/licenses/>.
 
-from sigdim import *
+from sigdim_with_c import *
 
 state = [
     [2,0,-2,0,0,0,-0,0,-2,-0,2,-0,0,0,-0,0],

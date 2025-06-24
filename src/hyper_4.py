@@ -18,6 +18,7 @@
 
 import numpy as np
 from solids import *
+from sigdim_with_c import sigdim
 
 S = np.array([
     [ 1,  1,  0,  0],

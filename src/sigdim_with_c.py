@@ -23,6 +23,11 @@ import qsoptex
 import logging
 import collections
 
+from ctypes import *
+import ctypes.util
+from numpy.ctypeslib import ndpointer
+
+
 from dual import *
 from e2m import *
 from vertices import *
@@ -62,6 +67,14 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
     sym = symmetry(effect[:, :-1])
     ext_meass = sym_ext(ext_meass, sym)
 
+    # define vertices
+    CHAR_ARY_2_P = ndpointer(dtype=np.int8, ndim=2, flags="C")
+    lib = np.ctypeslib.load_library("lib/vertices.so", ".")
+    lib.vertices.argtypes = [c_int32,
+                            c_int32, c_int32, CHAR_ARY_2_P,
+                            c_int32, c_int32, CHAR_ARY_2_P]
+    lib.vertices.restype = c_int32
+
     # sigdim
     sigdim = 0
     c = 0
@@ -74,12 +87,31 @@ def sigdim(state: np.ndarray=None, effect:np.ndarray=None, lb:int=2, ub:int=0) -
         poly = ext_lcm(ext, poly)
         P = state @ poly.T
         P = np.unique(P, axis=0)
-        # TODO:unique to convexhall
+        # prepare to vertices
+        PP = (P > 0).astype(np.int8)
         n = P.shape[1]
         dd = 0
         for d in range(max(lb, sigdim), min(n, ub)):
-            A = vertices(P, d)
-            print(A)
+            # print(d)
+            ary = [-1] * (2 ** PP.shape[1])
+            ary[0] = 0
+            cmb = combination(PP.shape[1], d)
+            l = 0
+            for choice in cmb:
+                l += L(PP, choice, ary)
+            if l == 0:
+                continue
+            A = np.zeros((l, PP.shape[0]), dtype=np.int8)
+            # print(PP.shape)
+            # print(A.shape)
+            ph = ctypes.c_int(PP.shape[0])
+            pw = ctypes.c_int(PP.shape[1])
+            ah = ctypes.c_int(l)
+            aw = ctypes.c_int(PP.shape[0])
+            max_d = ctypes.c_int(d)
+            hoge = lib.vertices(max_d, pw, ph, PP, aw, ah, A)
+            A = A.T.copy()
+            # print(A)
             if check(P, A):
                 dd = d
                 break
@@ -104,6 +136,34 @@ def cs(X: np.ndarray) -> bool:
             return False
     return True
 
+# get length of A
+def L (P, choice, ary):
+    if ary[choice] >= 0:
+        return ary[choice]
+    diff = 0
+    for i in range(1, choice):
+        if (i | choice) == choice:
+            hoge = L(P, i, ary)
+            diff += hoge
+    bit = []
+    for i in range(P.shape[1]):
+        if (1 << i) & choice > 0:
+            bit.append(i)
+    ary[choice] = P[:, bit].sum(1).prod() - diff
+    return ary[choice]
+def combination (d, max):
+    ary = []
+    def recfun (d, count, max, i, choice, ary):
+        if count <= max:
+            ary.append(choice)
+            if count == max:
+                return
+        elif i == d or count > max:
+            return
+        for j in range(i, d):
+            recfun(d, count + 1, max, j + 1, choice | (1 << j), ary)
+    recfun(d, 0, max, 0, 0, ary)
+    return ary
 
 
 def check(P:np.ndarray, A:np.ndarray) -> bool:
